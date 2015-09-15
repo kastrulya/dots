@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src = 'dots.js'></script>
+    <style>
+        #area {
+            float: right;
+            margin: auto;
+            width: 70%;
+        }
+        
+        .dot {
+            border-radius: 50%;
+            margin: auto;
+            position: relative;
+            background:transparent;
+            cursor: pointer;
+        }
+        
+        table {
+            border-collapse: collapse;
+            /*margin: auto;*/
+            width:80%;
+        }
+
+        td,
+        th {
+            border: 1px solid black;
+            padding: 3px;
+            text-align: center;
+        }
+
+        th {
+            font-weight: bold;
+            background-color: #E6E6E6;
+        }
+
+        #info_block {
+            float: left;
+            /*margin: 2px;*/
+            width: 20%;
+        }
+
+        input {
+            height: 30px;
+            text-align: center;
+            width: 100%;
+        }
+
+        #start_button {
+            background: seagreen;
+            color: #fff;
+            cursor: pointer;
+            height: 30px;
+            border: 1px solid lightseagreen;
+            border-radius: 5px ;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id = "info_block">
+        <p><input name = "player1" placeholder = 'Name of "red" player' /></p>
+        <p><input name = "player2" placeholder = 'Name of "blue" player' /></p>
+        <p><div id = "start_button" onclick='game.startGame("info_block")'>Start game!</div></p>
+    </div>
+    <div id = "field"></div>
+    <!--<script>run();</script>-->
+</body>
+</html>
