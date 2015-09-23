@@ -4,7 +4,7 @@
 "use strict";
 function Dot (element, position) {
     this.domElement = element;
-    //this.owner;
+    this.owner;
     this.position = {
         row: position.row,
         column: position.column
@@ -12,14 +12,17 @@ function Dot (element, position) {
 }
 
 Dot.prototype.isNeighbour = function(neighbour) {
+    if (this.position.row == neighbour.position.row && this.position.column == neighbour.position.column)
+        return 0;
     return (Math.abs(this.position.row - neighbour.position.row) <= 1) &&
         (Math.abs(this.position.column - neighbour.position.column) <= 1);
-}
+};
+
 Dot.prototype.setOwner = function(owner) {
     if (this.owner) return;
     this.owner = owner;
     this.domElement.style.background = owner.color;
-}
+};
 
 function Player (name, color) {
     this.name = name;
@@ -105,10 +108,17 @@ function AdjacencyMatrix() {
 AdjacencyMatrix.prototype.addElem = function(element) {
     var self = this;
     self.dotsArray.push(element);
-    self.dotsAdjacency.push([]);
-    self.dotsAdjacency.forEach(function(item, count) {
-        item.push(+self.dotsArray[count].isNeighbour(element))
-    });
+    var adjacency = self.dotsAdjacency;
+    adjacency.push([]);
+
+    for (var i = 0; i < adjacency.length; i++) {
+        adjacency[adjacency.length - 1][i] = +element.isNeighbour(self.dotsArray[i]);
+    }
+
+    for (var i = 0; i < adjacency.length - 1; i++) {
+        adjacency[i].push(+self.dotsArray[i].isNeighbour(element));
+    }
+
 };
 
 function findCycle(matrix, firstNode) {
@@ -140,10 +150,22 @@ function ctrlOnclick (game, dot) {
     var owner = game.players[game.activePlayer];
     dot.setOwner(owner);
     game.activePlayerDots().addElem(dot);
+    var cycle = findCycle(game.activePlayerDots().dotsAdjacency, game.activePlayerDots().dotsArray.length - 1);
+    if (cycle.length > 0) game.field.drawCycle(cycle, game);
     game.changeActivePlayer();
 }
 
-Field.prototype.drawConnection = function (elem1, elem2){
+/*
+Field.prototype.drawCycle = function (cycle, game) {
+  for (var i = 0; i < cycle.length; i++) {
+      var activeDots = game.activePlayerDots().dotsArray;
+      var v = i; //connection from
+      var u = i > cycle.length - 1 ? 0 : i + 1; //connection to
+      this.createConnection(activeDots[cycle[v]], activeDots[cycle[u]]);
+  }
+};
+
+Field.prototype.createConnection = function (elem1, elem2){
     if (elem1.owner != elem2.owner) return;
     if (Math.abs(elem1.position.row - elem2.position.row) > 1 || Math.abs(elem1.position.column - elem2.position.column) > 1) return;
     var verticalDirection = elem1.position.row - elem2.position.row;
@@ -156,18 +178,21 @@ Field.prototype.drawConnection = function (elem1, elem2){
         angle = horizontalDirection < 0 ? (45 + 90) * verticalDirection : 45 * verticalDirection;
         length /= Math.cos(angle);
     }
-    drawline(elem1.domElement.left, elem1.domElement.top, length, angle, elem1.owner.color);
+    drawLine(elem1.domElement, length, angle, elem1.owner.color);
 }
 
-function drawLine(x, y, length, angle, color) {
+function drawLine(x, length, angle, color) {
     var line = document.createElement("div");
     line.style.WebkitTransform = "rotate(" + angle + ")deg";
     line.style.transform = "rotate(" + angle + ")deg";
     line.style.width = length + "px";
     line.style.position = "absolute";
-    line.style.left = x + "px";
-    line.style.right = y + "px";
-    document.appendChild(line);
+    line.style.left = 300 + "px";
+    line.style.right = 500 + "px";
+    line.style.height = "5px";
+    line.style.backgroundColor = color;
+    document.body.appendChild(line);
 }
+*/
 
 var game = new Game();
