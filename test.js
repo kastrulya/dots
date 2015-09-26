@@ -32,6 +32,18 @@ describe("Adjacency matrix" , function () {
             });
         }
     });
+
+    describe("Check correct work of adjacency matrix", function () {
+        var elem = document.createElement("div");
+       it("check matrix of 4 connected element", function () {
+           var adjacency = new AdjacencyMatrix();
+           for (var i = 0; i < 4; i++) {
+                adjacency.addElem(new Dot(elem, {row: 0, column:i}));
+           }
+           assert.equal(adjacency.dotsAdjacency.toString(), "0,1,0,0,1,0,1,0,0,1,0,1,0,0,1,0");
+
+       });
+    });
 });
 
 describe("Find cycle", function() {

@@ -1,6 +1,7 @@
 /**
  * Created by bubble on 13.09.15.
  */
+
 "use strict";
 function Dot (element, position) {
     this.domElement = element;
@@ -64,8 +65,11 @@ Field.prototype.createField = function() {
         "</style>");
     table.style.width = this.size + "px";
     table.style.height = this.size + "px";
+    var canvas  = "<canvas id = 'canvas' width = \"" + this.size + "px\" height = \"" + this.size + "px\"></canvas>";
     self.domElement.appendChild(table);
-}
+    this.domElement.insertAdjacentHTML("afterBegin", canvas);
+    this.canvas = this.domElement.firstElementChild;
+};
 
 function Game () {
     this.players = [];
@@ -155,12 +159,11 @@ function ctrlOnclick (game, dot) {
     game.changeActivePlayer();
 }
 
-/*
 Field.prototype.drawCycle = function (cycle, game) {
-  for (var i = 0; i < cycle.length; i++) {
-      var activeDots = game.activePlayerDots().dotsArray;
+    var activeDots = game.activePlayerDots().dotsArray;
+    for (var i = 0; i < cycle.length; i++) {
       var v = i; //connection from
-      var u = i > cycle.length - 1 ? 0 : i + 1; //connection to
+      var u = i >= cycle.length - 1 ? 0 : i + 1; //connection to
       this.createConnection(activeDots[cycle[v]], activeDots[cycle[u]]);
   }
 };
@@ -168,31 +171,24 @@ Field.prototype.drawCycle = function (cycle, game) {
 Field.prototype.createConnection = function (elem1, elem2){
     if (elem1.owner != elem2.owner) return;
     if (Math.abs(elem1.position.row - elem2.position.row) > 1 || Math.abs(elem1.position.column - elem2.position.column) > 1) return;
-    var verticalDirection = elem1.position.row - elem2.position.row;
-    var horizontalDirection = elem1.position.column - elem2.position.column;
-    var angle;
-    var length = this.step;
-    if ( verticalDirection && !horizontalDirection ) angle = 90*verticalDirection;
-    if ( !verticalDirection && horizontalDirection ) angle = horizontalDirection < 0 ? 180 : 0 ;
-    if ( verticalDirection && horizontalDirection ) {
-        angle = horizontalDirection < 0 ? (45 + 90) * verticalDirection : 45 * verticalDirection;
-        length /= Math.cos(angle);
-    }
-    drawLine(elem1.domElement, length, angle, elem1.owner.color);
+    var position1 = findCoordinates(elem1, this.step);
+    var position2 = findCoordinates(elem2, this.step);
+    drawLine(position1[0], position1[1], position2[0], position2[1], elem1.owner.color, this.canvas);
+};
+
+function findCoordinates (elem, step) {
+    var x = (elem.position.column + 1) * step;
+    var y = (elem.position.row + 1) * step;
+    return [x,y];
 }
 
-function drawLine(x, length, angle, color) {
-    var line = document.createElement("div");
-    line.style.WebkitTransform = "rotate(" + angle + ")deg";
-    line.style.transform = "rotate(" + angle + ")deg";
-    line.style.width = length + "px";
-    line.style.position = "absolute";
-    line.style.left = 300 + "px";
-    line.style.right = 500 + "px";
-    line.style.height = "5px";
-    line.style.backgroundColor = color;
-    document.body.appendChild(line);
+function drawLine(x1, y1, x2, y2, color, canvas) {
+    var ctx = canvas.getContext("2d");
+    ctx.strokeStyle = color;
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
 }
-*/
+
 
 var game = new Game();
