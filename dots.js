@@ -27,7 +27,7 @@ Dot.prototype.setOwner = function(owner) {
 
 function Player (name, color) {
     this.name = name;
-    this.visited = visited;
+    //this.visited = visited;
     this.scores = 0;
 }
 
@@ -191,7 +191,7 @@ function drawLine(x1, y1, x2, y2, color, canvas) {
 }
 
 
-//var game = new Game();
+var game = new Game();
 
 var matrix = [[0,1,0,0,0,1,0,0,0,0,0,0,0,0,0], //1
 //   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -222,29 +222,58 @@ function findValueInStack (stack, value) {
     return -1;
 }
 
-function getPath(nodes) {
+function getPath(node) {
     var path = [];
-
+    while (node) {
+        path.push(node.node);
+        node = node.from;
+    }
+    return path;
 }
+
+//function Node (node, visited, from) {
+//    this.node = node;
+//    this.visited = visited;
+//    this.from = from;
+//}
+
+//var Stack = function (stack) {
+//    this.stack = stack;
+//};
+
+
+
+//Stack.prototype.getNodeByNumber = function (number) {
+//    for (var i = 0; i < this.stack.length; i++) {
+//        if (this.stack[i].node == value)
+//            return i;
+//    }
+//    return -1;
+//}
+
 
 function findCycle (matrix, firstNumber) {
     var stack = [];
-
     var firstNode = {node: firstNumber, visited: false};
-
     stack.push(firstNode);
     var filterStack = [firstNode];
     //stack[0].color = "white"; //first node isn't visited
-    path.push(firstNode.node);
 
     while(filterStack.length) {
-        var currentNode = filterStack[filterStack.length - 1];
+        var fromNode = filterStack[filterStack.length - 1];
         for (var i = 0; i < matrix.length; i++) {
             var isInStack = ~findValueInStack(stack, i);
-            var pathExists = matrix[currentNode.node][i] == 1;
-            if (pathExists && !isInStack) {
-                stack.push({node: i, visited: false, from: currentNode});
+            var pathExists = matrix[fromNode.node][i] == 1;
+            var indexNodeInStack = ~isInStack;
+            if (pathExists) {
+                if (!isInStack)
+                    stack.push({node: i, visited: false, from: fromNode});
+                else if (stack[indexNodeInStack].visited == false) {
+                    stack.splice(indexNodeInStack, 1);
+                    stack.push({node:i, visited: false, from: fromNode});
+                }
             }
+
         }
         //// for (var i = 0; i < matrix.length; i++) {
         ////    if (matrix[v.node][i] == 1) {
@@ -263,17 +292,17 @@ function findCycle (matrix, firstNumber) {
         //    else path.push(currentNode.node);
         //}
 
-        currentNode.visited = true;
+        fromNode.visited = true;
 
         filterStack = stack.filter(function(item) { //while there are node in stack that aren't black
             return item.visited != true;
         });
 
-        var u = filterStack[filterStack.length - 1];
+        //var toNode = filterStack[filterStack.length - 1];
         //if (matrix[u.node][v.node] == 1) u.from = v;
-        if (matrix[u.node][firstNode.node] == 1 && path.length > 3) {
-            path.push(u.node);
-            return path;
+        if (matrix[fromNode.node][firstNode.node] == 1 && getPath(fromNode).length > 3) {
+            //path.push(toNode.node);
+            return getPath(fromNode);
         }
     }
 
