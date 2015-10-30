@@ -22,12 +22,12 @@ Dot.prototype.isNeighbour = function(neighbour) {
 Dot.prototype.setOwner = function(owner) {
     if (this.owner) return;
     this.owner = owner;
-    this.domElement.style.background = owner.visited;
+    this.domElement.style.background = owner.color;
 };
 
 function Player (name, color) {
     this.name = name;
-    //this.visited = visited;
+    this.color = color;
     this.scores = 0;
 }
 
@@ -125,32 +125,8 @@ AdjacencyMatrix.prototype.addElem = function(element) {
 
 };
 
-//function findCycle(matrix, firstNode) {
-//    var stack = [];
-//    var notVisited = [];
-//    for (var i = 0; i < matrix.length; i++) {
-//        notVisited.push(i);
-//    }
-//    stack.push(firstNode);
-//    notVisited.splice(notVisited.indexOf(firstNode), 1); //delete visited node from notVisited
-//    while (stack.length != 0) {
-//        var u = -1;
-//        var v = stack[stack.length - 1];
-//        for (var i = 0; i < notVisited.length; i++) {
-//            if (matrix[v][notVisited[i]] == 1) {
-//                u = notVisited[i];
-//                break;
-//            }
-//        }
-//        if (~u) {
-//            notVisited.splice(notVisited.indexOf(u), 1);
-//            stack.push(u);
-//            if (matrix[u][firstNode] == 1 && stack.length > 3 ) return stack;
-//        } else stack = [];
-//    } return stack;
-//}
-
 function ctrlOnclick (game, dot) {
+    a();
     var owner = game.players[game.activePlayer];
     dot.setOwner(owner);
     game.activePlayerDots().addElem(dot);
@@ -173,7 +149,7 @@ Field.prototype.createConnection = function (elem1, elem2){
     if (Math.abs(elem1.position.row - elem2.position.row) > 1 || Math.abs(elem1.position.column - elem2.position.column) > 1) return;
     var position1 = findCoordinates(elem1, this.step);
     var position2 = findCoordinates(elem2, this.step);
-    drawLine(position1[0], position1[1], position2[0], position2[1], elem1.owner.visited, this.canvas);
+    drawLine(position1[0], position1[1], position2[0], position2[1], elem1.owner.color, this.canvas);
 };
 
 function findCoordinates (elem, step) {
@@ -184,16 +160,18 @@ function findCoordinates (elem, step) {
 
 function drawLine(x1, y1, x2, y2, color, canvas) {
     var ctx = canvas.getContext("2d");
-    ctx.strokeStyle = visited;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke();
+    ctx.closePath();
 }
 
 
 var game = new Game();
 
-var matrix = [[0,1,0,0,0,1,0,0,0,0,0,0,0,0,0], //1
+/*var matrix = [[0,1,0,0,0,1,0,0,0,0,0,0,0,0,0], //1
 //   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
     [1,0,1,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0],            //2
     [0,1,0,1,1,0,0,0,0, 0, 0, 0, 0, 0, 0],            //3
@@ -209,9 +187,9 @@ var matrix = [[0,1,0,0,0,1,0,0,0,0,0,0,0,0,0], //1
     [0,0,0,0,0,0,0,0,0, 0, 1, 0, 0, 1, 0],            //13
     [0,0,0,0,0,0,0,0,0, 0, 0, 0, 1, 0, 1],            //14
     [0,0,0,0,0,0,0,0,0, 0, 1, 0, 0, 1, 0],            //15
-];
+];*/
 
-findCycle(matrix, 0);
+//findCycle(matrix, 0);
 
 
 function findValueInStack (stack, value) {
@@ -231,25 +209,39 @@ function getPath(node) {
     return path;
 }
 
-//function Node (node, visited, from) {
-//    this.node = node;
-//    this.visited = visited;
-//    this.from = from;
-//}
+function Node (node, visited, from) {
+    this.node = node;
+    this.visited = visited;
+    this.from = from;
+}
 
-//var Stack = function (stack) {
-//    this.stack = stack;
-//};
+function Stack (stack) {
+    this.stack = stack;
+}
 
+Stack.prototype = Object.create([].prototype);
+Stack.prototype.constructor = Stack;
 
+Stack.prototype.getNodeByNumber = function (number) {
+    for (var i = 0; i < this.stack.length; i++) {
+        if (this.stack[i].node == value)
+           return i;
+    }
+    return -1;
+};
 
-//Stack.prototype.getNodeByNumber = function (number) {
-//    for (var i = 0; i < this.stack.length; i++) {
-//        if (this.stack[i].node == value)
-//            return i;
-//    }
-//    return -1;
-//}
+Stack.prototype.notVisitedInStack = function () {
+    return this.stack.filter(function(item) { //while there are node in stack that aren't black
+        return item.visited != true;
+    });
+};
+
+AdjacencyMatrix.prototype.findCycle = function (firstNode) {
+    var firstNode = new Node(firstNode, false);
+    var stackOfNodes = [];
+    stackOfNodes.push(firstNode);
+    var notVisited
+}
 
 
 function findCycle (matrix, firstNumber) {
@@ -257,7 +249,6 @@ function findCycle (matrix, firstNumber) {
     var firstNode = {node: firstNumber, visited: false};
     stack.push(firstNode);
     var filterStack = [firstNode];
-    //stack[0].color = "white"; //first node isn't visited
 
     while(filterStack.length) {
         var fromNode = filterStack[filterStack.length - 1];
@@ -275,37 +266,17 @@ function findCycle (matrix, firstNumber) {
             }
 
         }
-        //// for (var i = 0; i < matrix.length; i++) {
-        ////    if (matrix[v.node][i] == 1) {
-        ////        if (!~findValueInStack(stack, i))
-        ////            stack.push({node: i, color: "white"});
-        ////        else {
-        ////            var index = path.indexOf(v.node);
-        ////            if (~index) path.splice(index + 1, path.length - index);
-        ////            else path.push(v.node);
-        ////        }
-        ////    }
-        ////}
-        //if (currentNode.node != firstNode.node) {
-        //    var index = path.indexOf(currentNode.node);
-        //    if (~index) path.splice(index + 1, path.length - index);
-        //    else path.push(currentNode.node);
-        //}
-
         fromNode.visited = true;
 
         filterStack = stack.filter(function(item) { //while there are node in stack that aren't black
             return item.visited != true;
         });
 
-        //var toNode = filterStack[filterStack.length - 1];
-        //if (matrix[u.node][v.node] == 1) u.from = v;
         if (matrix[fromNode.node][firstNode.node] == 1 && getPath(fromNode).length > 3) {
-            //path.push(toNode.node);
             return getPath(fromNode);
         }
     }
-
+    return [];
 }
 
 
