@@ -1,5 +1,7 @@
 /**
  * Created by bubble on 10.09.15.
+ * Version of game: 0.01dev
+ * Not supported now. Look the "dots.js"
  */
 "use strict";
 

@@ -1,7 +1,14 @@
-define(function (require) {
-    // Load any app-specific modules
-    // with a relative require call,
-    // like:
-    var dots = require('./dots');
-    var a = require('./a');
+define(function(require){
+    var Game = require('Game');
+    var game = new Game();
+
+    var start = function(){
+        document.getElementById("info_block").style.visibility = "hidden";
+        return game.startGame(
+            document.getElementById("player1").value,
+            document.getElementById("player2").value
+        );
+    };
+
+    document.getElementById("start_button").onclick = start;
 });
